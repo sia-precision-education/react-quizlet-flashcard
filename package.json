@@ -5,7 +5,6 @@
   "main": "dist/react-quizlet-flashcard.umd.js",
   "module": "dist/react-quizlet-flashcard.es.js",
   "types": "dist/react-quizlet-flashcard.d.ts",
-  "repository": "https://github.com/ABSanthosh/react-quizlet-flashcard",
   "author": "ABSanthosh <a.b.santhosh02@gmail.com>",
   "license": "MIT",
   "private": false,
