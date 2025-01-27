@@ -7,7 +7,12 @@ import autoprefixer from 'autoprefixer'
 export default defineConfig({
   plugins: [
     react(),
-    dts()
+    dts({
+      insertTypesEntry: true,
+      include: ['src/**/*.ts', 'src/**/*.tsx'],
+      exclude: ['src/**/*.stories.tsx'],
+      rollupTypes: true,
+    })
   ],
   css: {
     postcss: {

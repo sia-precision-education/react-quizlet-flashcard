@@ -13,7 +13,7 @@
     "skipLibCheck": true,
     "strict": true,
   },
-  "include": ["src/**/*", ".ladle/**/*", "src/**/*.stories.tsx"],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
     "build",
