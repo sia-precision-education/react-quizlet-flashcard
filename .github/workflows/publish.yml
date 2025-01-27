@@ -29,7 +29,7 @@ jobs:
       - name: Publish to NPM
         run: bun publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Issue for New Release
         run: |
