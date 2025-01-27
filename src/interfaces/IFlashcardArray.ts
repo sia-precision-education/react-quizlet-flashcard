@@ -1,4 +1,8 @@
 export default interface FlashcardArrayProps {
+  id?: string;
+  title?: string;
+  author?: string;
+  description?: string;
   /**
    * Array of objects that populate the card.
    */
@@ -53,6 +57,8 @@ export default interface FlashcardArrayProps {
      * Styles for the card container.
      */
     style?: React.CSSProperties;
+
+    options?: Array<string>;
   }>;
   /**
    * Show or hide control arrows

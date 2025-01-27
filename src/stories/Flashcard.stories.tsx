@@ -1,20 +1,23 @@
-import React, { useRef } from "react";
-import { storiesOf } from "@storybook/react";
-const stories = storiesOf("Flashcard", module);
+import { useRef } from "react";
+import type { Story } from "@ladle/react";
+import clsx from "clsx";
 import "./storyStyle.scss";
 
 import Flashcard from "../components/Flashcard/Flashcard";
 
-stories.add("Basic Flashcard", () => {
+// Define the flip function type
+type FlipFunction = () => void;
+
+export const BasicFlashcard: Story = () => {
   return (
     <div className="storyContainer">
       <Flashcard frontHTML="<h1>Front</h1>" backHTML={<h1>Back</h1>} />
     </div>
   );
-});
+};
 
-stories.add("Manual flip", () => {
-  const flipRef = useRef();
+export const ManualFlip: Story = () => {
+  const flipRef = useRef<() => void>(() => {});
 
   return (
     <div className="storyContainer">
@@ -23,98 +26,28 @@ stories.add("Manual flip", () => {
         backHTML={<h1>Back</h1>}
         manualFlipRef={flipRef}
       />
-      <button onClick={() => flipRef.current()}>Flip</button>
+      <button onClick={() => flipRef.current?.()}>Flip</button>
     </div>
   );
-});
+};
 
-stories.add("Custom styles", () => {
+export const CustomStyles: Story = () => {
+  const numberSpanClass = clsx(
+    'flex',
+    'items-center',
+    'justify-center'
+  );
+
   return (
     <div className="storyContainer">
       <Flashcard
         frontHTML={
           <>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              1
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              2
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              3
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              4
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              5
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              6
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              7
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              8
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              9
-            </span>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+              <span key={num} className={numberSpanClass}>
+                {num}
+              </span>
+            ))}
           </>
         }
         backHTML={<h1>Back</h1>}
@@ -137,9 +70,9 @@ stories.add("Custom styles", () => {
       />
     </div>
   );
-});
+};
 
-stories.add("Card flip callback", () => {
+export const CardFlipCallback: Story = () => {
   return (
     <div className="storyContainer">
       <Flashcard
@@ -152,9 +85,9 @@ stories.add("Card flip callback", () => {
       />
     </div>
   );
-});
+};
 
-stories.add("Custom Card size", () => {
+export const CustomCardSize: Story = () => {
   return (
     <div className="storyContainer">
       <Flashcard
@@ -164,4 +97,4 @@ stories.add("Custom Card size", () => {
       />
     </div>
   );
-});
+};

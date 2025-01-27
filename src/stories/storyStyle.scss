@@ -1,6 +1,5 @@
-@import "../Styles/mixins";
+@import "../styles/mixins";
 
-// reset all styles
 * {
   padding: 0;
   margin: 0 !important;
@@ -20,6 +19,29 @@ body,
   @include box();
   @include make-flex();
   gap: 1rem;
+  perspective: 1000px;
+
+  &__card {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+
+    &.flipped {
+      transform: rotateY(180deg);
+    }
+
+    &-front,
+    &-back {
+      @include box(100%, 100%);
+      position: absolute;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    &-back {
+      transform: rotateY(180deg);
+    }
+  }
 
   &--buttons {
     @include box(100px, 30px);

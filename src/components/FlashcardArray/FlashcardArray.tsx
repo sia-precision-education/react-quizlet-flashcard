@@ -8,7 +8,6 @@ import "./FlashcardArray.scss";
 // currentCardFlipRef?: React.MutableRefObject<() => void>;
 // resetArray
 
-
 function FlashcardArray({
   cards,
   controls = true,

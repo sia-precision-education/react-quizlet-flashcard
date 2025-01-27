@@ -11,13 +11,12 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
   },
-  "include": ["src/**/*", "vite.config.ts"],
+  "include": ["src/**/*", "vite.config.ts", ".ladle/**/*", "src/**/*.stories.tsx"],
   "exclude": [
     "node_modules",
     "build",
-    "**/*.stories.tsx",
     "**/*.test.tsx"
   ]
 }

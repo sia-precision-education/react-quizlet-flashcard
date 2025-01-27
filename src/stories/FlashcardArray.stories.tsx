@@ -1,11 +1,11 @@
-import React, { useRef, useState } from "react";
-import { storiesOf } from "@storybook/react";
-const stories = storiesOf("Flashcard Array", module);
+import type { Story } from "@ladle/react";
+import { useRef, useState } from "react";
 import "./storyStyle.scss";
 
 import FlashcardArray from "../components/FlashcardArray/FlashcardArray";
+import FlashcardArrayProps from "../interfaces/IFlashcardArray";
 
-const deck = {
+const deck: FlashcardArrayProps = {
   id: "nsh19mt",
   title: "First Deck",
   author: "Santhosh",
@@ -56,25 +56,33 @@ const deck = {
   ],
 };
 
-stories.add("Basic FlashcardArray", () => {
+export const BasicFlashcardArray: Story = () => {
   return (
     <div className="storyContainer">
       <FlashcardArray cards={deck.cards} />
     </div>
   );
-});
+};
 
-stories.add("Cycling FlashcardArray", () => {
+export const CyclingFlashcardArray: Story = () => {
   return (
     <div className="storyContainer">
       <FlashcardArray cards={deck.cards} cycle={true} />
     </div>
   );
-});
+};
 
-stories.add("Custom Controls", () => {
-  const controlRef = useRef({}); // {} should definitely be passed to useRef for it to work
-  const currentCardFlipRef = useRef(); // nothing should be passed to useRef for it to work
+export const CustomControls: Story = () => {
+  const controlRef = useRef<{
+    nextCard: () => void;
+    prevCard: () => void;
+    resetArray: () => void;
+  }>({
+    nextCard: () => {},
+    prevCard: () => {},
+    resetArray: () => {},
+  });
+  const currentCardFlipRef = useRef<() => void>(() => {});
   const [currentCard, setCurrentCard] = useState(1);
 
   return (
@@ -111,7 +119,7 @@ stories.add("Custom Controls", () => {
         </p>
         <button
           className="storyContainer--buttons"
-          onClick={() => currentCardFlipRef.current()}
+          onClick={() => currentCardFlipRef.current?.()}
         >
           Flip
         </button>
@@ -124,9 +132,9 @@ stories.add("Custom Controls", () => {
       </div>
     </div>
   );
-});
+};
 
-stories.add("Custom Styles for all cards", () => {
+export const CustomStylesForAllCards: Story = () => {
   return (
     <div className="storyContainer">
       <FlashcardArray
@@ -141,9 +149,9 @@ stories.add("Custom Styles for all cards", () => {
       />
     </div>
   );
-});
+};
 
-stories.add("Custom Styles for each cards", () => {
+export const CustomStylesForEachCards: Story = () => {
   return (
     <div className="storyContainer">
       <FlashcardArray
@@ -194,4 +202,4 @@ stories.add("Custom Styles for each cards", () => {
       />
     </div>
   );
-});
+};

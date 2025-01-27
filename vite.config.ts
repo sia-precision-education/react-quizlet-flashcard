@@ -1,6 +1,8 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import dts from 'vite-plugin-dts';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import dts from 'vite-plugin-dts'
+import autoprefixer from 'autoprefixer'
+
 
 export default defineConfig({
   plugins: [
@@ -8,26 +10,27 @@ export default defineConfig({
     dts()
   ],
   css: {
-    postcss: {}
+    postcss: {
+      plugins: [
+        autoprefixer()
+      ]
+    },
   },
   build: {
     lib: {
       entry: 'src/index.ts',
       name: 'ReactQuizletFlashcard',
-      fileName: (format) => `react-quizlet-flashcard.${format}.js`
+      fileName: (format) => `react-quizlet-flashcard.${format}.js`,
+      formats: ['es', 'umd'] // Specify desired output formats
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'prop-types'],
+      external: ['react', 'react-dom'], // Mark React as external dependency
       output: {
         globals: {
           react: 'React',
-          'react-dom': 'ReactDOM',
-          'prop-types': 'PropTypes'
-        },
-        minifyInternalExports: true
+          'react-dom': 'ReactDOM'
+        }
       }
-    },
-    minify: 'terser'
+    }
   }
-});
-
+})

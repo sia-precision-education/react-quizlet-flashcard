@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import FlashcardProps from "../../interfaces/IFlashcard";
 import "./Flashcard.scss";
 
@@ -9,41 +9,6 @@ import "./Flashcard.scss";
 
 // removed
 // default styles like padding, border radius and flex alignment for content
-
-type ManualFlipRef = React.MutableRefObject<(() => void) | null>;
-
-type HTMLContent = string | React.ReactNode;
-
-interface CardSideProps {
-  content: HTMLContent;
-  cardStyle?: React.CSSProperties;
-  contentStyle?: React.CSSProperties;
-  isClickable: boolean;
-}
-
-function CardSide({ content, cardStyle, contentStyle, isClickable }: CardSideProps) {
-  return (
-    <div
-      className="FlashcardWrapper__item--side"
-      style={{
-        ...cardStyle,
-        cursor: isClickable ? "pointer" : "default",
-      }}
-    >
-      {typeof content !== "string" ? (
-        <div className="FlashcardWrapper__item--content" style={contentStyle}>
-          {content}
-        </div>
-      ) : (
-        <div
-          className="FlashcardWrapper__item--content"
-          dangerouslySetInnerHTML={{ __html: content }}
-          style={contentStyle}
-        />
-      )}
-    </div>
-  );
-}
 
 function Flashcard({
   frontHTML,
@@ -57,51 +22,86 @@ function Flashcard({
   height,
   borderRadius = "1rem",
   width,
-  onCardFlip = () => {},
-  manualFlipRef = { current: null } as ManualFlipRef,
+  onCardFlip = (state = false) => {},
+  manualFlipRef = { current: null },
 }: FlashcardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const handleFlip = useCallback(() => {
-    setIsFlipped(prev => !prev);
+  function onManualFlip() {
+    setIsFlipped(!isFlipped);
     onCardFlip(!isFlipped);
-  }, [isFlipped, onCardFlip]);
+  }
 
-  // Set up manual flip ref
-  useEffect(() => {
-    if (manualFlipRef.current !== null) {
-      manualFlipRef.current = handleFlip;
-    }
-  }, [handleFlip, manualFlipRef]);
-
-  const isManualFlip = typeof manualFlipRef.current === 'function';
+  if (manualFlipRef.current !== null) {
+    manualFlipRef.current = onManualFlip;
+  }
 
   return (
     <div
-      className={`FlashcardWrapper ${className}`.trim()}
+      className={`FlashcardWrapper ${className}`}
       style={{
-        height,
-        width,
+        height: height,
+        width: width,
         ...style,
       }}
     >
       <div
-        className={`FlashcardWrapper__item ${isFlipped ? "FlashcardWrapper__item--flip" : ""}`.trim()}
-        style={{ borderRadius }}
-        onClick={() => !isManualFlip && handleFlip()}
+        className={`FlashcardWrapper__item ${
+          isFlipped ? "FlashcardWrapper__item--flip" : ""
+        }`}
+        style={{
+          borderRadius: borderRadius,
+        }}
+        onClick={() => {
+          if (manualFlipRef.current) return;
+          setIsFlipped(!isFlipped);
+          onCardFlip(!isFlipped);
+        }}
       >
-        <CardSide
-          content={frontHTML}
-          cardStyle={frontCardStyle}
-          contentStyle={frontContentStyle}
-          isClickable={!isManualFlip}
-        />
-        <CardSide
-          content={backHTML}
-          cardStyle={backCardStyle}
-          contentStyle={backContentStyle}
-          isClickable={!isManualFlip}
-        />
+        <div
+          className="FlashcardWrapper__item--front"
+          style={{
+            ...frontCardStyle,
+            cursor: manualFlipRef.current ? "default" : "pointer",
+          }}
+        >
+          {typeof frontHTML !== "string" ? (
+            <div
+              className="FlashcardWrapper__item--content"
+              style={frontContentStyle}
+            >
+              {frontHTML}
+            </div>
+          ) : (
+            <div
+              className="FlashcardWrapper__item--content"
+              dangerouslySetInnerHTML={{ __html: frontHTML }}
+              style={frontContentStyle}
+            />
+          )}
+        </div>
+        <div
+          className="FlashcardWrapper__item--back"
+          style={{
+            ...backCardStyle,
+            cursor: manualFlipRef.current ? "default" : "pointer",
+          }}
+        >
+          {typeof backHTML !== "string" ? (
+            <div
+              className="FlashcardWrapper__item--content"
+              style={backContentStyle}
+            >
+              {backHTML}
+            </div>
+          ) : (
+            <div
+              className="FlashcardWrapper__item--content"
+              dangerouslySetInnerHTML={{ __html: backHTML }}
+              style={backContentStyle}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

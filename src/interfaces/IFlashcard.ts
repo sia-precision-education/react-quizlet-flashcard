@@ -1,3 +1,5 @@
+export type FlipCallback = (() => void) | null;
+
 export default interface FlashcardProps {
   /**
    * HTML string or JSX element to be displayed on the front of the card
@@ -48,7 +50,10 @@ export default interface FlashcardProps {
    */
   onCardFlip?: (state: boolean) => void;
   /**
-   * when passed with a ref, ref.current object will contain reference to `flipCard()` function
+   * Ref object that exposes the flipCard function to manually control card flipping
+   * @example
+   * const flipRef = useRef<() => void>(null);
+   * // Later: flipRef.current?.()
    */
-  manualFlipRef?: React.MutableRefObject<(() => void) | null>;
+  manualFlipRef?: React.MutableRefObject<FlipCallback>;
 }
