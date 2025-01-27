@@ -13,7 +13,7 @@
     "skipLibCheck": true,
     "strict": true,
   },
-  "include": ["src/**/*", "vite.config.ts", ".ladle/**/*", "src/**/*.stories.tsx"],
+  "include": ["src/**/*", ".ladle/**/*", "src/**/*.stories.tsx"],
   "exclude": [
     "node_modules",
     "build",
