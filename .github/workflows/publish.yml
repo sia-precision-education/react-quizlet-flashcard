@@ -9,26 +9,25 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Required for creating releases
-      issues: write    # Required for creating issues
+      contents: write
+      issues: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: '20'
-          registry-url: 'https://npm.pkg.github.com'
+          bun-version: latest
 
       - name: Install dependencies
-        run: npm install
+        run: bun install
 
       - name: Build
-        run: npm run build
+        run: bun run build
 
       - name: Publish to NPM
-        run: npm publish
+        run: bun publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
