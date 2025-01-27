@@ -22,7 +22,8 @@
     "flip card"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
   },
   "devDependencies": {
     "@babel/core": "^7.20.5",
