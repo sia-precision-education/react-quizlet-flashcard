@@ -72,6 +72,7 @@ function FlashcardArray({
     setCardNumber(0);
   };
 
+  // @deprecated
   const nextCard = useCallback(() => {
     const currentCardNumber =
       cardNumber + 1 < numberOfCards ? cardNumber + 1 : numberOfCards;
@@ -103,6 +104,7 @@ function FlashcardArray({
     onCardChange(cards[currentCardNumber].id, currentCardNumber + 1);
   }, [cardNumber, cycle, numberOfCards]);
 
+  // @deprecated
   const prevCard = useCallback(() => {
     const currentCardNumber = cardNumber - 1 >= 0 ? cardNumber - 1 : 0;
 
@@ -139,11 +141,34 @@ function FlashcardArray({
     onCardChange(cards[currentCardNumber].id, currentCardNumber + 1);
   }, [cardNumber, cycle, numberOfCards]);
 
+  function changeCard(index: number) {
+    // Handle cycling and bounds
+    let newIndex = index;
+    if (cycle) {
+      // Wrap around using modulo
+      newIndex = ((index % cards.length) + cards.length) % cards.length;
+    } else {
+      // Clamp between 0 and numberOfCards
+      newIndex = Math.max(0, Math.min(index, numberOfCards));
+    }
+
+    setIsOverFlow("hidden");
+    setTimeout(() => {
+      setIsOverFlow("");
+    }, 90);
+
+    setCardNumber(newIndex);
+    setCardsInDisplay([
+      newIndex === 0 ? -1 : newIndex - 1,
+      newIndex,
+      newIndex === numberOfCards ? -1 : newIndex + 1
+    ]);
+  }
+
   useEffect(() => {
     if (forwardRef.current) {
-      forwardRef.current.nextCard = nextCard;
-      forwardRef.current.prevCard = prevCard;
       forwardRef.current.resetArray = resetArray;
+      forwardRef.current.changeCard = changeCard;
     }
   });
 

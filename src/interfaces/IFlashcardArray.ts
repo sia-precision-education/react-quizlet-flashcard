@@ -70,8 +70,7 @@ export default interface FlashcardArrayProps {
    * when passed with a ref, ref.current object will contain reference to `nextCard()`, `prevCard()` and `resetArray()` functions
    */
   forwardRef?: React.MutableRefObject<{
-    nextCard: () => void;
-    prevCard: () => void;
+    changeCard: (index: number) => void;
     resetArray: () => void;
   } | null>;
   /**

@@ -74,12 +74,10 @@ export const CyclingFlashcardArray: Story = () => {
 
 export const CustomControls: Story = () => {
   const controlRef = useRef<{
-    nextCard: () => void;
-    prevCard: () => void;
+    changeCard: (index: number) => void;
     resetArray: () => void;
   }>({
-    nextCard: () => {},
-    prevCard: () => {},
+    changeCard: (index: number) => {},
     resetArray: () => {},
   });
   const currentCardFlipRef = useRef<() => void>(() => {});
@@ -104,7 +102,7 @@ export const CustomControls: Story = () => {
       <div className="storyContainer__row">
         <button
           className="storyContainer--buttons"
-          onClick={() => controlRef.current.prevCard()}
+          onClick={() => controlRef.current.changeCard(currentCard - 1)}
         >
           Prev
         </button>
@@ -125,7 +123,7 @@ export const CustomControls: Story = () => {
         </button>
         <button
           className="storyContainer--buttons"
-          onClick={() => controlRef.current.nextCard()}
+          onClick={() => controlRef.current.changeCard(currentCard + 1)}
         >
           Next
         </button>
