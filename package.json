@@ -8,7 +8,7 @@
   "repository": "https://github.com/ABSanthosh/react-quizlet-flashcard",
   "author": "ABSanthosh <a.b.santhosh02@gmail.com>",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "files": [
     "dist"
   ],
