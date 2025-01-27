@@ -190,7 +190,7 @@ function FlashcardArray({
       {(controls || showCount) && (
         <div className="FlashcardArrayWrapper__controls">
           {controls && (
-            <button onClick={() => prevCard()}>
+            <button onClick={() => changeCard(cardNumber - 1)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -210,7 +210,7 @@ function FlashcardArray({
             </span>
           )}
           {controls && (
-            <button onClick={() => nextCard()}>
+            <button onClick={() => changeCard(cardNumber + 1)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
