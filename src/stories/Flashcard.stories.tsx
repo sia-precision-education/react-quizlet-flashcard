@@ -5,7 +5,6 @@ import "./storyStyle.scss";
 
 import Flashcard from "../components/Flashcard/Flashcard";
 
-// Define the flip function type
 type FlipFunction = () => void;
 
 export const BasicFlashcard: Story = () => {
@@ -24,9 +23,29 @@ export const ManualFlip: Story = () => {
       <Flashcard
         frontHTML="<h1>Front</h1>"
         backHTML={<h1>Back</h1>}
+        frontCardStyle={{
+          backgroundColor: "blue",
+          borderRadius: "10px",
+          color: "white",
+          display: "grid",
+          fontSize: "2rem"
+        }}
+        backCardStyle={{
+          backgroundColor: "green",
+          color: "white",
+          padding: "10px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
         manualFlipRef={flipRef}
       />
-      <button onClick={() => flipRef.current?.()}>Flip</button>
+      <button
+        style={{ marginTop: "10px", padding: "10px", width: "10em" }}
+        onClick={() => flipRef.current?.()}
+      >
+        Flip
+      </button>
     </div>
   );
 };

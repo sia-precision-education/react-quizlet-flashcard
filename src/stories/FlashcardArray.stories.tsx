@@ -10,6 +10,14 @@ const deck: FlashcardArrayProps = {
   title: "First Deck",
   author: "Santhosh",
   description: "This is the first deck",
+  frontCardStyle: {
+    backgroundColor: "blue",
+    color: "white",
+  },
+  backCardStyle: {
+    backgroundColor: "green",
+    color: "white",
+  },
   cards: [
     {
       id: 1,
@@ -91,6 +99,8 @@ export const CustomControls: Story = () => {
         showCount={false}
         forwardRef={controlRef}
         currentCardFlipRef={currentCardFlipRef}
+        frontCardStyle={deck.frontCardStyle}
+        backCardStyle={deck.backCardStyle}
         onCardChange={(id, index) => {
           setCurrentCard(index);
         }}
