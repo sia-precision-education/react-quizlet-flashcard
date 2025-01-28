@@ -1,6 +1,6 @@
 {
   "name": "@sia-precision-education/react-quizlet-flashcard",
-  "version": "3.1.3",
+  "version": "3.2.0",
   "description": "Simple quizlet like flashcard",
   "main": "dist/react-quizlet-flashcard.umd.js",
   "module": "dist/react-quizlet-flashcard.es.js",
