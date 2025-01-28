@@ -37,19 +37,17 @@
     "@rollup/plugin-node-resolve": "^15.3.1",
     "@rollup/plugin-terser": "^0.2.1",
     "@types/node": "^18.19.74",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
+    "@types/react": "=18.3.12",
+    "@types/react-dom": "=18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "ajv": "^8.17.1",
     "autoprefixer": "^10.4.20",
     "babel-loader": "^8.4.1",
-    "babel-plugin-react-compiler": "^19.0.0-beta-27714ef-20250124",
     "eslint": "^8.0.1",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-n": "^15.0.0 || ^16.0.0",
     "eslint-plugin-promise": "^6.0.0",
-    "eslint-plugin-react-compiler": "^19.0.0-beta-27714ef-20250124",
     "ladle": "^0.0.0",
     "postcss": "^8.5.1",
     "postcss-import": "^16.1.0",
@@ -66,14 +64,18 @@
     "vite-plugin-dts": "^4.5.0"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "scripts": {
     "build": "vite build",
     "dev": "vite",
     "ladle": "ladle serve",
-    "build-ladle": "ladle build"
+    "build-ladle": "ladle build",
+    "version:patch": "npm version patch",
+    "version:minor": "npm version minor",
+    "version:major": "npm version major",
+    "publish": "npm publish"
   },
   "dependencies": {
     "clsx": "^2.1.1"
