@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import dts from 'vite-plugin-dts'
 import autoprefixer from 'autoprefixer'
-import ReactCompiler from 'babel-plugin-react-compiler'
 
 export default defineConfig({
   plugins: [
@@ -15,6 +14,10 @@ export default defineConfig({
     })
   ],
   css: {
+    modules: {
+      localsConvention: 'camelCase',
+      generateScopedName: '[local]_[hash:base64:5]'
+    },
     postcss: {
       plugins: [
         autoprefixer()
@@ -22,20 +25,23 @@ export default defineConfig({
     },
   },
   build: {
+    sourcemap: true,
     lib: {
       entry: 'src/index.ts',
       name: 'ReactQuizletFlashcard',
       fileName: (format) => `react-quizlet-flashcard.${format}.js`,
-      formats: ['es', 'umd'] // Specify desired output formats
+      formats: ['es', 'umd']
     },
     rollupOptions: {
-      external: ['react', 'react-dom'], // Mark React as external dependency
+      external: ['react', 'react-dom'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM'
-        }
+        },
+        minifyInternalExports: true
       }
-    }
+    },
+    minify: false
   }
 })
