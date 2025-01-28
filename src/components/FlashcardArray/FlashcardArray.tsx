@@ -1,33 +1,47 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {   forwardRef, useEffect, useImperativeHandle, useRef, useState, useCallback } from "react";
 import FlashcardArrayProps from "../../interfaces/IFlashcardArray";
 import Flashcard from "../Flashcard/Flashcard";
 import "./FlashcardArray.scss";
 
-// added
-// cycle?: boolean;
-// currentCardFlipRef?: React.MutableRefObject<() => void>;
-// resetArray
+export interface FlashcardArrayRef {
+  resetArray: () => void;
+  changeCard: (index: number) => void;
+}
 
-function FlashcardArray({
+export interface CardDisplayState {
+  prev: number;
+  current: number;
+  next: number;
+}
+
+const ANIMATION_DELAY = 90;
+const FLIP_OVERFLOW_DELAY = 3;
+
+const FlashcardArray = forwardRef<FlashcardArrayRef, FlashcardArrayProps>(({
   cards,
   controls = true,
   showCount = true,
-  onCardChange = () => {},
   onCardFlip = () => {},
   frontCardStyle = {},
   frontContentStyle = {},
   backCardStyle = {},
   backContentStyle = {},
-  forwardRef = { current: null },
   FlashcardArrayStyle = {},
   currentCardFlipRef,
   cycle = false,
-}: FlashcardArrayProps) {
-  const [cardNumber, setCardNumber] = useState(0);
-  const [cardsInDisplay, setCardsInDisplay] = useState(
-    !cycle ? [-1, 0, 1] : [cards.length - 1, 0, 1]
-  );
+}: FlashcardArrayProps, ref) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isOverFlow, setIsOverFlow] = useState("");
+
+  const flashcardArrayRef = useRef<{
+    resetArray: () => void;
+    changeCard: (index: number) => void;
+  }>(null);
+
+  useImperativeHandle(ref, () => ({
+    resetArray: flashcardArrayRef.current?.resetArray ?? (() => {}),
+    changeCard: flashcardArrayRef.current?.changeCard ?? (() => {}),
+  }));
 
   const placeFillerCard = (
     <Flashcard
@@ -40,11 +54,12 @@ function FlashcardArray({
 
   const cardsList = cards.map((card, index) => (
     <Flashcard
+      id={card.id ?? index}
       key={index}
       frontHTML={card.frontHTML}
       backHTML={card.backHTML}
       manualFlipRef={
-        cardNumber === index ? currentCardFlipRef : { current: null }
+        currentIndex === index ? currentCardFlipRef : { current: null }
       }
       frontCardStyle={{ ...card.frontCardStyle, ...frontCardStyle }}
       frontContentStyle={{ ...card.frontContentStyle, ...frontContentStyle }}
@@ -55,7 +70,7 @@ function FlashcardArray({
       width={card.width || "100%"}
       style={card.style}
       onCardFlip={(state) => {
-        onCardFlip(card.id, index, state);
+        onCardFlip(card.id ?? index, index, state);
         setIsOverFlow("hidden");
         setTimeout(() => {
           setIsOverFlow("");
@@ -64,133 +79,49 @@ function FlashcardArray({
     />
   ));
 
-  const numberOfCards =
-    cardsList.length !== undefined ? cardsList.length - 1 : 0;
-
-  const resetArray = () => {
-    setCardsInDisplay(!cycle ? [-1, 0, 1] : [cards.length - 1, 0, 1]);
-    setCardNumber(0);
-  };
-
-  // @deprecated
-  const nextCard = useCallback(() => {
-    const currentCardNumber =
-      cardNumber + 1 < numberOfCards ? cardNumber + 1 : numberOfCards;
-
-    if (currentCardNumber < numberOfCards) {
-      setIsOverFlow("hidden");
-      setTimeout(() => {
-        setIsOverFlow("");
-      }, 90);
-    }
-    if (cycle) {
-      setCardsInDisplay((prevState) => {
-        setCardNumber(prevState[1] + 1 < cards.length ? prevState[1] + 1 : 0);
-        return [
-          prevState[0] + 1 < cards.length ? prevState[0] + 1 : 0,
-          prevState[1] + 1 < cards.length ? prevState[1] + 1 : 0,
-          prevState[2] + 1 < cards.length ? prevState[2] + 1 : 0,
-        ];
-      });
-    } else {
-      setCardNumber(currentCardNumber);
-      setCardsInDisplay(
-        currentCardNumber < numberOfCards
-          ? [currentCardNumber - 1, currentCardNumber, currentCardNumber + 1]
-          : [numberOfCards - 1, numberOfCards, -1]
-      );
-    }
-
-    onCardChange(cards[currentCardNumber].id, currentCardNumber + 1);
-  }, [cardNumber, cycle, numberOfCards]);
-
-  // @deprecated
-  const prevCard = useCallback(() => {
-    const currentCardNumber = cardNumber - 1 >= 0 ? cardNumber - 1 : 0;
-
-    if (currentCardNumber !== 0) {
-      setIsOverFlow("hidden");
-      setTimeout(() => {
-        setIsOverFlow("");
-      }, 90);
-    }
-
-    if (cycle) {
-      setCardsInDisplay((prevState) => {
-        const activeCard =
-          prevState[1] - 1 < 0 ? cards.length - 1 : prevState[1] - 1;
-
-        setCardNumber(
-          prevState[1] - 1 >= 0 ? prevState[1] - 1 : cards.length - 1
-        );
-
-        return [
-          activeCard - 1 < 0 ? cards.length - 1 : activeCard - 1,
-          activeCard,
-          activeCard + 1 < cards.length ? activeCard + 1 : 0,
-        ];
-      });
-    } else {
-      setCardNumber(currentCardNumber);
-      setCardsInDisplay(
-        currentCardNumber === 0
-          ? [-1, 0, 1]
-          : [currentCardNumber - 1, currentCardNumber, currentCardNumber + 1]
-      );
-    }
-    onCardChange(cards[currentCardNumber].id, currentCardNumber + 1);
-  }, [cardNumber, cycle, numberOfCards]);
-
-  function changeCard(index: number) {
-    // Handle cycling and bounds
+  const changeCard = (index: number) => {
     let newIndex = index;
     if (cycle) {
-      // Wrap around using modulo
       newIndex = ((index % cards.length) + cards.length) % cards.length;
     } else {
-      // Clamp between 0 and numberOfCards
-      newIndex = Math.max(0, Math.min(index, numberOfCards));
+      newIndex = Math.max(0, Math.min(index, cards.length - 1));
     }
 
     setIsOverFlow("hidden");
     setTimeout(() => {
       setIsOverFlow("");
-    }, 90);
+    }, ANIMATION_DELAY);
 
-    setCardNumber(newIndex);
-    setCardsInDisplay([
-      newIndex === 0 ? -1 : newIndex - 1,
-      newIndex,
-      newIndex === numberOfCards ? -1 : newIndex + 1
-    ]);
-  }
+    setCurrentIndex(newIndex);
+  };
+
+  const resetArray = () => {
+    setCurrentIndex(0);
+  };
 
   useEffect(() => {
-    if (forwardRef.current) {
-      forwardRef.current.resetArray = resetArray;
-      forwardRef.current.changeCard = changeCard;
+    if (flashcardArrayRef.current) {
+      flashcardArrayRef.current.resetArray = resetArray;
+      flashcardArrayRef.current.changeCard = changeCard;
     }
   });
 
   return (
     <div className="FlashcardArrayWrapper" style={FlashcardArrayStyle}>
-      <div
-        className="FlashcardArrayWrapper__CardHolder"
-        style={{ overflow: isOverFlow }}
-      >
-        {cardsInDisplay[0] !== -1
-          ? cardsList[cardsInDisplay[0]]
+      <div className="FlashcardArrayWrapper__CardHolder" style={{ overflow: isOverFlow }}>
+        {currentIndex > 0 || cycle ?
+          cardsList[cycle ? (currentIndex - 1 + cards.length) % cards.length : currentIndex - 1]
           : placeFillerCard}
-        {cardsList[cardsInDisplay[1]]}
-        {cardsInDisplay[2] !== -1
-          ? cardsList[cardsInDisplay[2]]
+        {cardsList[currentIndex]}
+        {currentIndex < cards.length - 1 || cycle ?
+          cardsList[cycle ? (currentIndex + 1) % cards.length : currentIndex + 1]
           : placeFillerCard}
       </div>
 
       {(controls || showCount) && (
         <div className="FlashcardArrayWrapper__controls">
           {controls && (
-            <button onClick={() => changeCard(cardNumber - 1)}>
+            <button onClick={() => changeCard(currentIndex - 1)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -206,11 +137,11 @@ function FlashcardArray({
           )}
           {showCount && (
             <span className="FlashcardArrayWrapper__controls--count">
-              {cardNumber + 1}/{cardsList.length}
+              {currentIndex + 1}/{cardsList.length}
             </span>
           )}
           {controls && (
-            <button onClick={() => changeCard(cardNumber + 1)}>
+            <button onClick={() => changeCard(currentIndex + 1)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -228,6 +159,6 @@ function FlashcardArray({
       )}
     </div>
   );
-}
+});
 
 export default FlashcardArray;

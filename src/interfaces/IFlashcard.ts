@@ -2,6 +2,10 @@ export type FlipCallback = (() => void) | null;
 
 export default interface FlashcardProps {
   /**
+   * Unique identifier for the card
+   */
+  id?: number | string;
+  /**
    * HTML string or JSX element to be displayed on the front of the card
    */
   frontHTML: string | JSX.Element;

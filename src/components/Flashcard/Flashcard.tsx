@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useImperativeHandle, forwardRef, useRef } from "react";
 import FlashcardProps from "../../interfaces/IFlashcard";
 import "./Flashcard.scss";
 
@@ -10,22 +10,30 @@ import "./Flashcard.scss";
 // removed
 // default styles like padding, border radius and flex alignment for content
 
-function Flashcard({
+const Flashcard = forwardRef(({
   frontHTML,
   frontCardStyle,
   frontContentStyle,
   backHTML,
   backCardStyle,
   backContentStyle,
-  className = "",
   style,
   height,
   borderRadius = "1rem",
   width,
-  onCardFlip = (state = false) => {},
-  manualFlipRef = { current: null },
-}: FlashcardProps) {
+  className,
+  onCardFlip = ((state: boolean = false) => {}),
+}: FlashcardProps, ref) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const manualFlipRef = useRef<() => void>(null);
+
+  useImperativeHandle(ref, () => ({
+    onManualFlip: () => {
+      setIsFlipped(!isFlipped);
+      onCardFlip(!isFlipped);
+    },
+  }));
+
 
   function onManualFlip() {
     setIsFlipped(!isFlipped);
@@ -119,6 +127,6 @@ function Flashcard({
       </div>
     </div>
   );
-}
+});
 
 export default Flashcard;

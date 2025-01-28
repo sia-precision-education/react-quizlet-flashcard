@@ -5,8 +5,6 @@ import "./storyStyle.scss";
 
 import Flashcard from "../components/Flashcard/Flashcard";
 
-type FlipFunction = () => void;
-
 export const BasicFlashcard: Story = () => {
   return (
     <div className="storyContainer">

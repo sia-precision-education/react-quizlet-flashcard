@@ -10,7 +10,7 @@ export default interface FlashcardArrayProps {
     /**
      * Unique identifier for the card.
      */
-    id: number;
+    id?: number;
     /**
      * HTML string for the front of the card.
      */
@@ -100,11 +100,11 @@ export default interface FlashcardArrayProps {
   /**
    * Callback function that is called when card in view changes with card id and index
    */
-  onCardChange?: (id: any, index: number) => void;
+  onCardChange?: (id: number | string, index: number) => void;
   /**
    * Callback function that is called when a card is flipped with card id and flip state
    */
-  onCardFlip?: (id: any, index: number, state: boolean) => void;
+  onCardFlip?: (id: number | string, index: number, state: boolean) => void;
   /**
    * when passed with a ref, ref.current object will contain reference to `flipCard()` for the current card
    */
