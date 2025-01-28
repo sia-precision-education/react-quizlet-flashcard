@@ -14,8 +14,8 @@
   "exports": {
     ".": {
       "types": "./dist/react-quizlet-flashcard.d.ts",
-      "import": "./dist/react-quizlet-flashcard.es.js",
-      "require": "./dist/react-quizlet-flashcard.umd.js"
+      "import": "./dist/react-quizlet-flashcard.umd.js",
+      "require": "./dist/react-quizlet-flashcard.es.js"
     }
   },
   "keywords": [

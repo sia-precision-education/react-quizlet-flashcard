@@ -39,9 +39,18 @@ export default defineConfig({
           react: 'React',
           'react-dom': 'ReactDOM'
         },
-        minifyInternalExports: true
+        minifyInternalExports: true,
       }
     },
-    minify: false
+    minify: false,
+    target: 'es2015',
+    outDir: 'dist',
+    emptyOutDir: true,
+    chunkSizeWarningLimit: 500,
+    cssCodeSplit: true,
+    manifest: false,
+    write: true,
+    reportCompressedSize: true,
+    brotliSize: true,
   }
 })
