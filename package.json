@@ -2,15 +2,19 @@
   "name": "@sia-precision-education/react-quizlet-flashcard",
   "version": "3.2.2",
   "description": "Simple quizlet like flashcard",
-  "main": "dist/react-quizlet-flashcard.umd.js",
-  "module": "dist/react-quizlet-flashcard.es.js",
-  "types": "dist/react-quizlet-flashcard.d.ts",
   "repository": "https://github.com/sia-precision-education/react-quizlet-flashcard",
   "license": "MIT",
   "private": false,
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/react-quizlet-flashcard.d.ts",
+      "import": "./dist/react-quizlet-flashcard.es.js",
+      "require": "./dist/react-quizlet-flashcard.umd.js"
+    }
+  },
   "keywords": [
     "quizlet",
     "flashcard",
