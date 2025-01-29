@@ -12,11 +12,15 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", ".ladle/*"],
   "exclude": [
     "node_modules",
     "build",
     "**/*.test.tsx"
-  ]
+  ],
 }
