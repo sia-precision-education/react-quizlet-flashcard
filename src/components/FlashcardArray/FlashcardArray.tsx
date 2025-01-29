@@ -1,33 +1,57 @@
-import React, { useCallback, useEffect, useState } from "react";
-import FlashcardArrayProps from "../../interfaces/IFlashcardArray";
+import React, {
+  forwardRef,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  useContext,
+} from "react";
+import FlashcardArrayProps from "./types";
 import Flashcard from "../Flashcard/Flashcard";
+import clsx from "clsx";
 import "./FlashcardArray.scss";
 
-// added
-// cycle?: boolean;
-// currentCardFlipRef?: React.MutableRefObject<() => void>;
-// resetArray
+import type { FlashcardArrayRef } from "./types";
+import type { FlashcardRef } from "../Flashcard/types";
+import assert from "assert";
+import { useFlashcardSync, FlashcardSyncContext } from "@/contexts/FlashcardSyncContext";
+import { FlashcardSyncProvider } from "@/contexts/FlashcardSyncContext";
 
-function FlashcardArray({
+const useFlashcardSyncExists = () => {
+  const context = useContext(FlashcardSyncContext);
+  return context !== null && context !== undefined;
+};
+
+const FlashcardArrayInternal = forwardRef<
+  FlashcardArrayRef,
+  FlashcardArrayProps
+>(({
   cards,
   controls = true,
   showCount = true,
-  onCardChange = () => {},
   onCardFlip = () => {},
-  frontCardStyle = {},
-  frontContentStyle = {},
-  backCardStyle = {},
-  backContentStyle = {},
-  forwardRef = { current: null },
-  FlashcardArrayStyle = {},
-  currentCardFlipRef,
+  frontCardStyle,
+  frontContentStyle,
+  backCardStyle,
+  backContentStyle,
   cycle = false,
-}: FlashcardArrayProps) {
-  const [cardNumber, setCardNumber] = useState(0);
-  const [cardsInDisplay, setCardsInDisplay] = useState(
-    !cycle ? [-1, 0, 1] : [cards.length - 1, 0, 1]
-  );
+}: FlashcardArrayProps, ref) => {
+  const { currentIndex, setCurrentIndex, flipStates, toggleFlip, setTotalCards, setCards } = useFlashcardSync();
   const [isOverFlow, setIsOverFlow] = useState("");
+
+  const cardRefs = useRef<(FlashcardRef | null)[]>([]);
+
+
+  useEffect(() => {
+    cardRefs.current = Array(cards.length).fill(null);
+  }, [cards.length]);
+
+  useEffect(() => {
+    setTotalCards(cards.length);
+    setCards(cards.map((card) => ({ frontContent: card.frontHTML as string, backContent: card.backHTML as string })));
+  }, [cards.length, setTotalCards, setCards]);
 
   const placeFillerCard = (
     <Flashcard
@@ -35,199 +59,189 @@ function FlashcardArray({
       width="100%"
       backHTML=""
       frontHTML=""
+      frontCardStyle={frontCardStyle || ""}
+      frontContentStyle={frontContentStyle || ""}
+      backCardStyle={backCardStyle || ""}
+      backContentStyle={backContentStyle || ""}
     />
   );
 
-  const cardsList = cards.map((card, index) => (
-    <Flashcard
-      key={index}
-      frontHTML={card.frontHTML}
-      backHTML={card.backHTML}
-      manualFlipRef={
-        cardNumber === index ? currentCardFlipRef : { current: null }
-      }
-      frontCardStyle={{ ...card.frontCardStyle, ...frontCardStyle }}
-      frontContentStyle={{ ...card.frontContentStyle, ...frontContentStyle }}
-      backCardStyle={{ ...card.backCardStyle, ...backCardStyle }}
-      backContentStyle={{ ...card.backContentStyle, ...backContentStyle }}
-      className={card.className}
-      height={card.height || "100%"}
-      width={card.width || "100%"}
-      style={card.style}
-      onCardFlip={(state) => {
-        onCardFlip(card.id, index, state);
-        setIsOverFlow("hidden");
-        setTimeout(() => {
-          setIsOverFlow("");
-        }, 3);
-      }}
-    />
-  ));
-
-  const numberOfCards =
-    cardsList.length !== undefined ? cardsList.length - 1 : 0;
-
-  const resetArray = () => {
-    setCardsInDisplay(!cycle ? [-1, 0, 1] : [cards.length - 1, 0, 1]);
-    setCardNumber(0);
-  };
-
-  // @deprecated
-  const nextCard = useCallback(() => {
-    const currentCardNumber =
-      cardNumber + 1 < numberOfCards ? cardNumber + 1 : numberOfCards;
-
-    if (currentCardNumber < numberOfCards) {
-      setIsOverFlow("hidden");
-      setTimeout(() => {
-        setIsOverFlow("");
-      }, 90);
-    }
-    if (cycle) {
-      setCardsInDisplay((prevState) => {
-        setCardNumber(prevState[1] + 1 < cards.length ? prevState[1] + 1 : 0);
-        return [
-          prevState[0] + 1 < cards.length ? prevState[0] + 1 : 0,
-          prevState[1] + 1 < cards.length ? prevState[1] + 1 : 0,
-          prevState[2] + 1 < cards.length ? prevState[2] + 1 : 0,
-        ];
-      });
-    } else {
-      setCardNumber(currentCardNumber);
-      setCardsInDisplay(
-        currentCardNumber < numberOfCards
-          ? [currentCardNumber - 1, currentCardNumber, currentCardNumber + 1]
-          : [numberOfCards - 1, numberOfCards, -1]
-      );
+  const mergeStyles = (style: React.CSSProperties | string, defaultStyle: React.CSSProperties | string) => {
+    if (typeof style === "string" || typeof defaultStyle === "string") {
+      const styleClass = typeof style === "string" ? style : "";
+      const defaultStyleClass = typeof defaultStyle === "string" ? defaultStyle : "";
+      return clsx(styleClass, defaultStyleClass);
     }
 
-    onCardChange(cards[currentCardNumber].id, currentCardNumber + 1);
-  }, [cardNumber, cycle, numberOfCards]);
-
-  // @deprecated
-  const prevCard = useCallback(() => {
-    const currentCardNumber = cardNumber - 1 >= 0 ? cardNumber - 1 : 0;
-
-    if (currentCardNumber !== 0) {
-      setIsOverFlow("hidden");
-      setTimeout(() => {
-        setIsOverFlow("");
-      }, 90);
-    }
-
-    if (cycle) {
-      setCardsInDisplay((prevState) => {
-        const activeCard =
-          prevState[1] - 1 < 0 ? cards.length - 1 : prevState[1] - 1;
-
-        setCardNumber(
-          prevState[1] - 1 >= 0 ? prevState[1] - 1 : cards.length - 1
-        );
-
-        return [
-          activeCard - 1 < 0 ? cards.length - 1 : activeCard - 1,
-          activeCard,
-          activeCard + 1 < cards.length ? activeCard + 1 : 0,
-        ];
-      });
-    } else {
-      setCardNumber(currentCardNumber);
-      setCardsInDisplay(
-        currentCardNumber === 0
-          ? [-1, 0, 1]
-          : [currentCardNumber - 1, currentCardNumber, currentCardNumber + 1]
-      );
-    }
-    onCardChange(cards[currentCardNumber].id, currentCardNumber + 1);
-  }, [cardNumber, cycle, numberOfCards]);
-
-  function changeCard(index: number) {
-    // Handle cycling and bounds
-    let newIndex = index;
-    if (cycle) {
-      // Wrap around using modulo
-      newIndex = ((index % cards.length) + cards.length) % cards.length;
-    } else {
-      // Clamp between 0 and numberOfCards
-      newIndex = Math.max(0, Math.min(index, numberOfCards));
-    }
-
-    setIsOverFlow("hidden");
-    setTimeout(() => {
-      setIsOverFlow("");
-    }, 90);
-
-    setCardNumber(newIndex);
-    setCardsInDisplay([
-      newIndex === 0 ? -1 : newIndex - 1,
-      newIndex,
-      newIndex === numberOfCards ? -1 : newIndex + 1
-    ]);
+    return { ...defaultStyle, ...style };
   }
 
-  useEffect(() => {
-    if (forwardRef.current) {
-      forwardRef.current.resetArray = resetArray;
-      forwardRef.current.changeCard = changeCard;
-    }
+  const cardsList = cards.map((card, index) => {
+    return (
+      <Flashcard
+        key={index}
+        ref={(el) => {
+          cardRefs.current[index] = el;
+        }}
+        frontHTML={card.frontHTML}
+        backHTML={card.backHTML}
+        frontCardStyle={mergeStyles(card.frontCardStyle || "", frontCardStyle || "")}
+        frontContentStyle={mergeStyles(card.frontContentStyle || "", frontContentStyle || "")}
+        backCardStyle={mergeStyles(card.backCardStyle || "", backCardStyle || "")}
+        backContentStyle={mergeStyles(card.backContentStyle || "", backContentStyle || "")}
+        className={clsx(card.className, "h-full w-full")}
+        style={card.style}
+        onCardFlip={(state) => {
+          handleCardFlip(card.id, index, state);
+          setIsOverFlow("hidden");
+          setTimeout(() => {
+            setIsOverFlow("");
+          }, 3);
+        }}
+      />
+    );
   });
 
+  const handleCardFlip = (cardId: string | number, index: number, state: boolean) => {
+    toggleFlip(index);
+    onCardFlip(cardId, index, state);
+  };
+
+  useImperativeHandle(ref, () => ({
+    totalCards: cards.length,
+    currentIndex: currentIndex,
+    resetArray: () => {
+      setCurrentIndex(0);
+    },
+    changeCard: (
+      callback: (index: number, totalCards: number) => number,
+      cycle: boolean,
+    ) => {
+      changeCard(callback, cycle);
+    },
+    flipCurrentCard: () => {
+      const currentCard = cardRefs.current[currentIndex];
+      if (currentCard) {
+        currentCard.onManualFlip();
+      }
+    },
+  }));
+
+  function changeCard(
+    callback: (index: number, totalCards: number) => number,
+    cycle: boolean = false,
+  ) {
+    const newIndex = callback(currentIndex, cards.length);
+
+    const isAtBoundary = !cycle && (
+      (newIndex >= cards.length && currentIndex === cards.length - 1) ||
+      (newIndex < 0 && currentIndex === 0)
+    );
+
+    if (!isAtBoundary) {
+      setIsOverFlow("hidden");
+      setTimeout(() => {
+        setIsOverFlow("");
+      }, 300);
+    }
+
+    if (cycle) {
+      if (newIndex >= cards.length) {
+        setCurrentIndex(0);
+      } else if (newIndex < 0) {
+        setCurrentIndex(cards.length - 1);
+      } else {
+        setCurrentIndex(newIndex);
+      }
+    } else {
+      setCurrentIndex(Math.max(0, Math.min(newIndex, cards.length - 1)));
+    }
+  }
+
+
   return (
-    <div className="FlashcardArrayWrapper" style={FlashcardArrayStyle}>
+    <div className="FlashcardArrayWrapper">
       <div
         className="FlashcardArrayWrapper__CardHolder"
         style={{ overflow: isOverFlow }}
       >
-        {cardsInDisplay[0] !== -1
-          ? cardsList[cardsInDisplay[0]]
-          : placeFillerCard}
-        {cardsList[cardsInDisplay[1]]}
-        {cardsInDisplay[2] !== -1
-          ? cardsList[cardsInDisplay[2]]
-          : placeFillerCard}
+        {currentIndex - 1 >= 0
+          ? cardsList[currentIndex - 1]
+          : (cycle ? cardsList[cards.length - 1] : placeFillerCard)}
+        {cardsList[currentIndex]}
+        {currentIndex + 1 < cards.length
+          ? cardsList[currentIndex + 1]
+          : (cycle ? cardsList[0] : placeFillerCard)}
       </div>
 
-      {(controls || showCount) && (
+      {(controls) && (
         <div className="FlashcardArrayWrapper__controls">
-          {controls && (
-            <button onClick={() => changeCard(cardNumber - 1)}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                style={{ height: "24px", width: "24px" }}
-              >
-                <path
-                  d="M19 12a1 1 0 0 1-1 1H8.414l1.293 1.293a1 1 0 1 1-1.414 1.414l-3-3a1 1 0 0 1 0-1.414l3-3a1 1 0 0 1 1.414 1.414L8.414 11H18a1 1 0 0 1 1 1z"
-                  style={{ fill: "#1c1b1e", height: "24px", width: "24px" }}
-                  data-name="Left"
-                />
-              </svg>
-            </button>
-          )}
-          {showCount && (
-            <span className="FlashcardArrayWrapper__controls--count">
-              {cardNumber + 1}/{cardsList.length}
-            </span>
-          )}
-          {controls && (
-            <button onClick={() => changeCard(cardNumber + 1)}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                style={{ height: "24px", width: "24px" }}
-              >
-                <path
-                  d="m18.707 12.707-3 3a1 1 0 0 1-1.414-1.414L15.586 13H6a1 1 0 0 1 0-2h9.586l-1.293-1.293a1 1 0 0 1 1.414-1.414l3 3a1 1 0 0 1 0 1.414z"
-                  style={{ fill: "#1c1b1e", height: "24px", width: "24px" }}
-                  data-name="Right"
-                />
-              </svg>
-            </button>
-          )}
+          <button
+            onClick={() => changeCard((index) => index - 1, cycle)}
+            className={clsx({ "hidden": !controls })}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              style={{ height: "24px", width: "24px" }}
+            >
+              <path
+                d="M19 12a1 1 0 0 1-1 1H8.414l1.293 1.293a1 1 0 1 1-1.414 1.414l-3-3a1 1 0 0 1 0-1.414l3-3a1 1 0 0 1 1.414 1.414L8.414 11H18a1 1 0 0 1 1 1z"
+                style={{ fill: "#1c1b1e", height: "24px", width: "24px" }}
+                data-name="Left"
+              />
+            </svg>
+          </button>
+
+          <FlashcardArrayCount
+            cardNumber={currentIndex}
+            cardsList={cardsList}
+            showCount={showCount}
+          />
+
+          <button
+            onClick={() => changeCard((index) => index + 1, cycle)}
+            className={clsx({ "hidden": !controls })}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              style={{ height: "24px", width: "24px" }}
+            >
+              <path
+                d="m18.707 12.707-3 3a1 1 0 0 1-1.414-1.414L15.586 13H6a1 1 0 0 1 0-2h9.586l-1.293-1.293a1 1 0 0 1 1.414-1.414l3 3a1 1 0 0 1 0 1.414z"
+                style={{ fill: "#1c1b1e", height: "24px", width: "24px" }}
+                data-name="Right"
+              />
+            </svg>
+          </button>
         </div>
       )}
     </div>
   );
+});
+
+function FlashcardArrayCount(
+  { cardNumber, cardsList, showCount = false }: {
+    cardNumber: number;
+    cardsList: JSX.Element[];
+    showCount: boolean;
+  },
+) {
+  if (!showCount) return null;
+  return (
+    <span className="FlashcardArrayWrapper__controls--count">
+      {cardNumber + 1}/{cardsList.length}
+    </span>
+  );
 }
+
+const FlashcardArray = forwardRef<FlashcardArrayRef, FlashcardArrayProps>((props, ref) => {
+  const providerExists = useFlashcardSyncExists();
+  if (!providerExists) {
+    return <FlashcardSyncProvider><FlashcardArrayInternal ref={ref} {...props} /></FlashcardSyncProvider>;
+  }
+  return <FlashcardArrayInternal ref={ref} {...props} />;
+});
 
 export default FlashcardArray;
