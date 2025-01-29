@@ -1,124 +1,108 @@
-import React, { useState, useCallback } from "react";
-import FlashcardProps from "../../interfaces/IFlashcard";
+import React, { useState, useMemo, useRef, useImperativeHandle } from "react";
+import FlashcardProps, { FlashcardRef } from "./types";
 import "./Flashcard.scss";
+import clsx from "clsx";
 
-// added
-// manualFlipRef?: React.MutableRefObject<() => void>;
-// borderRadius?: string;
-// jsx elements for frontHTML and backHTML
 
-// removed
-// default styles like padding, border radius and flex alignment for content
-
-function Flashcard({
+const Flashcard = React.forwardRef<FlashcardRef, FlashcardProps>(({
   frontHTML,
-  frontCardStyle,
-  frontContentStyle,
+  frontCardStyle = "",
+  frontContentStyle = "",
+
   backHTML,
-  backCardStyle,
-  backContentStyle,
-  className = "",
+  backCardStyle = "",
+  backContentStyle = "",
+
+  className,
   style,
-  height,
-  borderRadius = "1rem",
-  width,
-  onCardFlip = (state = false) => {},
-  manualFlipRef = { current: null },
-}: FlashcardProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
+  onCardFlip = (state = false) => { },
+}: FlashcardProps, ref) => {
+  const [isFlipped, setIsFlipped] = useState<boolean>(false);
 
-  function onManualFlip() {
-    setIsFlipped(!isFlipped);
-    onCardFlip(!isFlipped);
+  const internalRef = useRef<HTMLDivElement>(null);
+
+  const handleFlip = () => {
+    setIsFlipped(prev => {
+      const newFlipState = !prev;
+      onCardFlip(newFlipState);
+      return newFlipState;
+    });
   }
 
-  if (manualFlipRef.current !== null) {
-    manualFlipRef.current = onManualFlip;
-  }
+  useImperativeHandle(ref, () => ({
+    onManualFlip: handleFlip,
+    isFlipped: isFlipped
+  }));
 
-  const renderContent = useCallback(
-    (content: React.ReactNode | string, contentStyle?: React.CSSProperties) => {
-      if (typeof content === "string") {
-        return (
-          <div
-            className="FlashcardWrapper__item--content"
-            dangerouslySetInnerHTML={{ __html: content }}
-            style={contentStyle}
-          />
-        );
-      }
+  // const getCursorStyle = () => {
+  //   if (manualFlipRef.current) {
+  //     return "default";
+  //   }
+  //   return "pointer";
+  // };
 
-      return (
-        <div className="FlashcardWrapper__item--content" style={contentStyle}>
-          {content}
-        </div>
-      );
-    },
-    []
-  );
 
-  const getCursorStyle = () => {
-    if (manualFlipRef.current) {
-      return "default";
-    }
-    return "pointer";
-  };
-
-  const handleClick = () => {
-    if (manualFlipRef.current) {
-      return;
-    }
-
-    const newFlipState = !isFlipped;
-    setIsFlipped(newFlipState);
-    onCardFlip(newFlipState);
-  };
-
-  const getFlipClassName = () => {
-    const baseClass = "FlashcardWrapper__item";
-    if (isFlipped) {
-      return `${baseClass} ${baseClass}--flip`;
-    }
-    return baseClass;
-  };
+  const { front, back } = useMemo(() => {
+    return {
+      front: { content: frontHTML, style: frontCardStyle, contentStyle: frontContentStyle },
+      back: { content: backHTML, style: backCardStyle, contentStyle: backContentStyle },
+    };
+  }, [frontHTML, backHTML, frontCardStyle, backCardStyle]);
 
   return (
     <div
       className={`FlashcardWrapper ${className}`}
+      ref={internalRef}
       style={{
-        height: height,
-        width: width,
-        ...style,
+        // border: "1px solid #000",
+        borderRadius: "1rem",
+        ...style
       }}
     >
       <div
-        className={getFlipClassName()}
-        style={{
-          borderRadius: borderRadius,
-        }}
-        onClick={handleClick}
+        className={`FlashcardWrapper__item ${isFlipped ? "FlashcardWrapper__item--flip" : ""}`}
+        onClick={handleFlip}
       >
-        <div
-          className="FlashcardWrapper__item--front"
-          style={{
-            ...frontCardStyle,
-            cursor: getCursorStyle(),
-          }}
-        >
-          {renderContent(frontHTML, frontContentStyle)}
-        </div>
-        <div
-          className="FlashcardWrapper__item--back"
-          style={{
-            ...backCardStyle,
-            cursor: getCursorStyle(),
-          }}
-        >
-          {renderContent(backHTML, backContentStyle)}
-        </div>
+        <FlashcardContent side="front" content={front.content} style={front.style} contentStyle={front.contentStyle} />
+        <FlashcardContent side="back" content={back.content} style={back.style} contentStyle={back.contentStyle} />
       </div>
     </div>
   );
+});
+
+
+interface FlashcardSide {
+  side: "front" | "back";
+  content: string | JSX.Element;
+  style?: React.CSSProperties | string;
+  contentStyle?: React.CSSProperties | string;
+}
+
+
+function FlashcardContent({
+  side,
+  content,
+  style,
+  contentStyle
+}: FlashcardSide) {
+
+  const contentStyleObj: React.CSSProperties = typeof contentStyle === "string" ? { [contentStyle]: "true" } : contentStyle || {};
+  const styleObj: React.CSSProperties = typeof style === "string" ? { [style]: "true" } : style || {};
+
+  const contentStyleString = typeof contentStyle === "string" ? contentStyle : ""; // belongs in className
+  const styleString = typeof style === "string" ? style : "";
+
+  return(
+  <div className={`FlashcardWrapper__item--${side}`} style={styleObj}>
+    {
+      React.isValidElement(content) ?
+        <div className={clsx("FlashcardWrapper__item--content", contentStyleString)} style={contentStyleObj}>{content}</div> :
+        <div className={clsx("FlashcardWrapper__item--content", contentStyleString)} dangerouslySetInnerHTML={{ __html: content }} style={contentStyleObj} />
+    }
+
+  </div>
+
+)
 }
 
 export default Flashcard;

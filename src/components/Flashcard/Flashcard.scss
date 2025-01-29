@@ -1,4 +1,6 @@
-@use "../../styles/mixins" as *;
+
+@import "../../styles/mixins";
+@import "tailwindcss";
 
 .FlashcardWrapper {
   & * {
@@ -9,6 +11,7 @@
   perspective: 1000px;
   @include box(560px, 340px);
   transform: none !important;
+
 
   &__item {
     top: 0;
@@ -30,6 +33,7 @@
       border-radius: inherit;
       @include make-flex();
       backface-visibility: hidden;
+
       box-shadow: 0 0 2.5rem 0 rgba(0, 0, 0, 0.16);
     }
 
