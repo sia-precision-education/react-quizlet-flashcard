@@ -14,6 +14,30 @@ interface FlashcardPaginationProps {
   className?: string;
 }
 
+
+/**
+ * FlashcardPagination Component
+ *
+ * This component provides pagination controls for navigating through flashcards.
+ *
+ * Example usage:
+ *
+ * <FlashcardSyncProvider>
+ *   <FlashcardArray cards={cards} />
+ *   <FlashcardPagination />
+ * </FlashcardSyncProvider>
+ *
+ * The component uses the `useFlashcardSync` hook to access the current index, total number of cards,
+ * and a function to update the current index.
+ *
+ * The `handlePrevious` function decrements the current index by 1 if it is greater than 0.
+ * The `handleNext` function increments the current index by 1 if it is less than the total number of cards minus 1.
+ *
+ * The `getVisiblePages` function calculates the pages to be displayed in the pagination control.
+ * It always includes the first and last pages, and adds ellipses if there are gaps between the current page range and the first/last pages.
+ * The range of pages around the current page is determined by the `delta` value.
+ */
+
 export const FlashcardPagination: React.FC<FlashcardPaginationProps> = ({
   className,
 }) => {

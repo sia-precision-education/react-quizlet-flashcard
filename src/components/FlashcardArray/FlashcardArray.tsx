@@ -236,6 +236,26 @@ function FlashcardArrayCount(
   );
 }
 
+/**
+ * FlashcardArrayCount Component
+ *
+ * This component displays the current card number and the total number of cards in the FlashcardArray.
+ *
+ * Props:
+ * - cardNumber: The index of the current card being displayed.
+ * - cardsList: The list of card elements in the FlashcardArray.
+ * - showCount: A boolean indicating whether to show the card count.
+ *
+ * Example usage:
+ *
+ * <FlashcardArrayCount
+ *   cardNumber={currentIndex}
+ *   cardsList={cardsList}
+ *   showCount={showCount}
+ * />
+
+*/
+
 const FlashcardArray = forwardRef<FlashcardArrayRef, FlashcardArrayProps>((props, ref) => {
   const providerExists = useFlashcardSyncExists();
   if (!providerExists) {

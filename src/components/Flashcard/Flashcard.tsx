@@ -4,6 +4,39 @@ import "./Flashcard.scss";
 import clsx from "clsx";
 
 
+/**
+ * Flashcard Component
+ *
+ * This component represents a flashcard that can be flipped to show either the front or back content.
+ *
+ * Props:
+ * - frontHTML: The HTML content to be displayed on the front of the flashcard.
+ * - frontCardStyle: The CSS style to be applied to the front of the flashcard.
+ * - frontContentStyle: The CSS style to be applied to the content inside the front of the flashcard.
+ * - backHTML: The HTML content to be displayed on the back of the flashcard.
+ * - backCardStyle: The CSS style to be applied to the back of the flashcard.
+ * - backContentStyle: The CSS style to be applied to the content inside the back of the flashcard.
+ * - className: Additional CSS classes to be applied to the flashcard wrapper.
+ * - style: Inline styles to be applied to the flashcard wrapper.
+ * - onCardFlip: Callback function to be called when the flashcard is flipped. Receives the new flip state as an argument.
+ *
+ * Ref:
+ * - onManualFlip: Function to manually trigger the flip of the flashcard.
+ * - isFlipped: Boolean indicating the current flip state of the flashcard.
+ *
+ * Example usage:
+ *
+ * const flipRef = useRef<FlashcardRef | null>(null);
+ *
+ * <Flashcard
+ *   frontHTML="<h1>Front</h1>"
+ *   backHTML="<h1>Back</h1>"
+ *   ref={flipRef}
+ * />
+ *
+ * <button onClick={() => flipRef.current?.onManualFlip()}>Flip</button>
+ */
+
 const Flashcard = React.forwardRef<FlashcardRef, FlashcardProps>(({
   frontHTML,
   frontCardStyle = "",

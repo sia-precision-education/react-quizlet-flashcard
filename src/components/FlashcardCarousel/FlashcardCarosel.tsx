@@ -23,7 +23,7 @@ export interface FlashcardCarouselRef {
   getCurrentIndex: () => number;
 }
 
-// Start of Selection
+
 export function FlashcardThumbnail({
   frontContent,
   backContent,
